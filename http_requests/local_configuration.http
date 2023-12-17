@@ -1,0 +1,8 @@
+POST http://localhost:9101/
+Content-Type: application/json
+
+{
+    "credentials": {
+        "url": "file:chinook.sqlite"
+    }
+}
