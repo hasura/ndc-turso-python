@@ -1,7 +1,7 @@
 from typing import Dict, List, Optional
 from pydantic import BaseModel
 import libsql_client  # Assuming this is your database client module
-from schemas import ForeignKeyDetail
+from models import ForeignKeyDetail
 
 
 # Define necessary types and classes

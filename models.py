@@ -31,7 +31,7 @@ class CredentialsSchema(BaseModel):
 
 class Configuration(BaseModel):
     credentials: CredentialsSchema
-    config: ConfigurationSchema = None
+    config: Optional[ConfigurationSchema] = None
 
 
 RawConfiguration = Configuration

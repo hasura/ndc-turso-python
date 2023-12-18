@@ -1,7 +1,7 @@
 from hasura_ndc import *
 from typing import Optional, Dict
 import libsql_client
-from schemas import RawConfiguration, Configuration, State
+from models import RawConfiguration, Configuration, State
 from handlers.explain import explain
 from handlers.get_schema import get_schema
 from handlers.update_configuration import update_configuration
@@ -67,7 +67,7 @@ class RootConnector(Connector[RawConfiguration, Configuration, State]):
 
     # SERVER
     def get_raw_configuration_schema(self) -> Dict[str, Any]:
-        return {}
+        return RawConfiguration.model_json_schema()
 
     # SERVER
     def make_empty_configuration(self) -> RawConfiguration:
@@ -90,4 +90,5 @@ class RootConnector(Connector[RawConfiguration, Configuration, State]):
 
 if __name__ == "__main__":
     c = RootConnector()
+    c.get_raw_configuration_schema()
     start(c)

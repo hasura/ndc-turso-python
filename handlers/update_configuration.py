@@ -1,4 +1,4 @@
-from schemas import RawConfiguration, ObjectFieldDetails
+from models import RawConfiguration, ObjectFieldDetails
 import libsql_client
 from hasura_ndc import *
 from constants import BASE_TYPES, BASE_FIELDS

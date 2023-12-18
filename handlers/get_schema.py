@@ -1,5 +1,5 @@
 from hasura_ndc import *
-from schemas import Configuration
+from models import Configuration
 from typing import List
 from constants import SCALAR_TYPES
 

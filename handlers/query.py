@@ -1,4 +1,4 @@
-from schemas import Configuration, State, QueryRequest, QueryResponse, Query, Expression
+from models import Configuration, State, QueryRequest, QueryResponse, Query, Expression
 from typing import List, Any, Dict, Optional
 import json
 from libsql_client import Statement
@@ -35,68 +35,66 @@ FROM
 
 
 def build_where(expression: Expression, args: List, variables: Dict[str, Any]) -> str:
-    if expression['type'] == 'unary_comparison_operator':
-        if expression['operator'] == 'is_null':
-            sql = f"{expression['column']['name']} IS NULL"
+    if expression.type == 'unary_comparison_operator':
+        if expression.operator == 'is_null':
+            sql = f"{expression.column.name} IS NULL"
         else:
             raise ValueError("Unknown Unary Comparison Operator")
-    elif expression['type'] == 'binary_comparison_operator':
-        value_type = expression['value']['type']
+    elif expression.type == 'binary_comparison_operator':
+        value_type = expression.value.type
         if value_type == 'scalar':
-            args.append(expression['value']['value'])
+            args.append(expression.value.value)
         elif value_type == 'variable':
             if variables:
-                args.append(variables[expression['value']['name']])
+                args.append(variables[expression.value.name])
         elif value_type == 'column':
             raise ValueError("Column type in binary comparison not implemented")
         else:
             raise ValueError("Unknown Binary Comparison Value Type")
-
-        operator_type = expression['operator']['type']
+        operator_type = expression.operator.type
         if operator_type == 'equal':
-            sql = f"{expression['column']['name']} = ?"
+            sql = f"{expression.column.name} = ?"
         elif operator_type == 'other':
-            operator_name = expression['operator']['name']
+            operator_name = expression.operator.name
             if operator_name == '_like':
-                sql = f"{expression['column']['name']} LIKE ?"
+                sql = f"{expression.column.name} LIKE ?"
             elif operator_name == '_glob':
-                sql = f"{expression['column']['name']} GLOB ?"
+                sql = f"{expression.column.name} GLOB ?"
             elif operator_name == '_neq':
-                sql = f"{expression['column']['name']} != ?"
+                sql = f"{expression.column.name} != ?"
             elif operator_name == '_gt':
-                sql = f"{expression['column']['name']} > ?"
+                sql = f"{expression.column.name} > ?"
             elif operator_name == '_lt':
-                sql = f"{expression['column']['name']} < ?"
+                sql = f"{expression.column.name} < ?"
             elif operator_name == '_gte':
-                sql = f"{expression['column']['name']} >= ?"
+                sql = f"{expression.column.name} >= ?"
             elif operator_name == '_lte':
-                sql = f"{expression['column']['name']} <= ?"
+                sql = f"{expression.column.name} <= ?"
             else:
                 raise ValueError("Invalid Expression Operator Name")
         else:
             raise ValueError("Binary Comparison Custom Operator not implemented")
-    elif expression['type'] == 'and':
-        if not expression['expressions']:
+    elif expression.type == 'and':
+        if not expression.expressions:
             sql = "1"
         else:
-            clauses = [build_where(expr, args, variables) for expr in expression['expressions']]
+            clauses = [build_where(expr, args, variables) for expr in expression.expressions]
             sql = f"({' AND '.join(clauses)})"
-    elif expression['type'] == 'or':
-        if not expression['expressions']:
+    elif expression.type == 'or':
+        if not expression.expressions:
             sql = "1"
         else:
-            clauses = [build_where(expr, args, variables) for expr in expression['expressions']]
+            clauses = [build_where(expr, args, variables) for expr in expression.expressions]
             sql = f"({' OR '.join(clauses)})"
-    elif expression['type'] == 'not':
-        not_result = build_where(expression['expression'], args, variables)
+    elif expression.type == 'not':
+        not_result = build_where(expression.expression, args, variables)
         sql = f"NOT ({not_result})"
-    elif expression['type'] == 'binary_array_comparison_operator':
+    elif expression.type == 'binary_array_comparison_operator':
         raise ValueError("Binary Array Comparison Operator not implemented")
-    elif expression['type'] == 'exists':
+    elif expression.type == 'exists':
         raise ValueError("Exists not implemented")
     else:
         raise ValueError("Unknown Expression Type")
-
     return sql
 
 

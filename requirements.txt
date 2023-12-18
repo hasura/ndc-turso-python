@@ -7,7 +7,7 @@ click==8.1.7
 fastapi==0.105.0
 frozenlist==1.4.1
 h11==0.14.0
-hasura-ndc==0.6
+hasura-ndc==0.7
 idna==3.6
 libsql-client==0.3.0
 multidict==6.0.4
