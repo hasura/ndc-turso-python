@@ -10,3 +10,5 @@ python3 main.py serve --configuration config.json --port 8084
 python3 main.py configuration serve --port 9101
 
 See the .env file
+
+# TODO: Handle server secret
