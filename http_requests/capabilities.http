@@ -1,2 +1,2 @@
-GET http://localhost:8084/capabilities
+GET http://0.0.0.0:8084/capabilities
 Authorization: secret

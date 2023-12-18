@@ -90,5 +90,4 @@ class RootConnector(Connector[RawConfiguration, Configuration, State]):
 
 if __name__ == "__main__":
     c = RootConnector()
-    c.get_raw_configuration_schema()
     start(c)
