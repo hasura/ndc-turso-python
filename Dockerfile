@@ -10,8 +10,7 @@ COPY entrypoint.sh .
 
 RUN chmod +x entrypoint.sh
 
-# Expose ports for both serve and configuration modes
-EXPOSE 8084, 9101
+EXPOSE 8084
 
 
 ENTRYPOINT ["./entrypoint.sh"]

@@ -51,8 +51,13 @@ def wrap_nullable(_type: Type, is_not_null: bool, is_primary_key: bool) -> Type:
 
 async def introspect_table(table_name: str, client: libsql_client.Client) -> TableIntrospectResult:
     response = TableIntrospectResult(
-        object_types={}, field_names=[], primary_keys=[],
-        unique_keys=[], nullable_keys=[], field_types={}, foreign_keys={}
+        object_types={},
+        field_names=[],
+        primary_keys=[],
+        unique_keys=[],
+        nullable_keys=[],
+        field_types={},
+        foreign_keys={}
     )
 
     # Execute SQL query to get column details

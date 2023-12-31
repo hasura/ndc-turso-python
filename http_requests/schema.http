@@ -1,2 +1,1 @@
 GET http://localhost:8084/schema
-Authorization: secret

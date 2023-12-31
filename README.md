@@ -11,4 +11,15 @@ python3 main.py configuration serve --port 9101
 
 See the .env file
 
-# TODO: Handle server secret
+TODO: GroupBy and GroupByHaving
+
+    if q.group_by:  # Assuming q.group_by is a list of field names (strings) for simplicity
+        group_by_fields = [escape_double(field) for field in q.group_by]
+        group_by_sql = f'GROUP BY {", ".join(group_by_fields)}'
+
+TODO: Collapse/Collect rows into the wrapping types
+
+TODO: Aggregates Generation
+
+TODO: Replace Query with functions so I can hand-roll it and play with different defaults to see what feels the most sensible.
+

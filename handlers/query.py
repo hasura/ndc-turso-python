@@ -1,9 +1,8 @@
-from models import Configuration, State, QueryRequest, QueryResponse, Query, Expression
+from models import Configuration, State, QueryRequest, QueryResponse, Query, Expression, MutationResponse, MutationOperationResults
 from typing import List, Any, Dict, Optional
 import json
 from libsql_client import Statement
-
-MAX_32_INT = 2147483647
+from constants import MAX_32_INT
 
 
 def escape_single(s: Any) -> str:
@@ -201,7 +200,9 @@ async def plan_queries(configuration: Configuration, q: QueryRequest) -> List[St
             st = Statement(sql=qp["sql"], args=qp["args"])
             query_plan.append(st)
     else:
-        qp = build_query(configuration, q, q.collection,
+        qp = build_query(configuration,
+                         q,
+                         q.collection,
                          q.query,
                          [],
                          {},
@@ -220,6 +221,20 @@ async def perform_query(state: State, query_plans: List[Statement]) -> QueryResp
 
 
 async def query(configuration: Configuration, state: State, query_request: QueryRequest) -> QueryResponse:
+    print(query_request.model_dump_json(indent=4))
+    if query_request.collection.startswith("list_"):
+        # This won't work. :/ Blocked again.
+        # Functional Queries just can't return Anything? I'm so confused.
+        query_request.collection = query_request.collection[len("list_"):]
+        if query_request.arguments.get("limit") is not None:
+            limit = query_request.arguments.get("limit", None)
+            if limit is not None and limit.value is not None:
+                limit = limit.value
+            offset = None
+            where = None
+            query_request.query.limit = limit
+            query_request.query.offset = offset
+            query_request.query.where = where
     query_plans = await plan_queries(configuration, query_request)
     query_response = await perform_query(state, query_plans)
     return query_response

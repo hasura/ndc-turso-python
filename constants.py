@@ -1,15 +1,15 @@
 from hasura_ndc import ScalarType
 
+MAX_32_INT = 2147483647
 SCALAR_TYPES = {
     "Int": ScalarType(**{
         "aggregate_functions": {
-            # Example commented out, similar to your TypeScript code
-            # "sum": {
-            #     "result_type": {
-            #         "type": "named",
-            #         "name": "Int"
-            #     }
-            # }
+            "sum": {
+                "result_type": {
+                    "type": "named",
+                    "name": "Int"
+                }
+            }
         },
         "comparison_operators": {
             "_gt": {
