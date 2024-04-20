@@ -21,5 +21,8 @@ TODO: Collapse/Collect rows into the wrapping types
 
 TODO: Aggregates Generation
 
-TODO: Replace Query with functions so I can hand-roll it and play with different defaults to see what feels the most sensible.
+TODO: Replace Query with functions so I can hand-roll it and play with different defaults to see what feels the most
+sensible.
 
+TODO: Fix the configuration generation and package this so that it can serve as an example that follows the packaging
+spec

@@ -1,8 +1,16 @@
-from models import *
+try:
+    from models import *
+except ImportError:
+    from ..models import *
+
+try:
+    from handlers.query import plan_queries, perform_query
+except ImportError:
+    from query import plan_queries, perform_query
+from hasura_ndc.models import QueryRequest
 from libsql_client import Statement, ResultSet
 from libsql_client.sqlite3 import LibsqlError
 from typing import List, Dict
-from handlers.query import plan_queries, perform_query, QueryRequest
 
 
 class ConnectorError(Exception):
@@ -79,7 +87,7 @@ def build_binary_expression(field_name: str, operator: str, value: Any) -> Expre
     return Expression(
         type='binary_comparison_operator',
         column=ComparisonTarget(type='column', name=field_name, path=[]),
-        operator=BinaryComparisonOperator(type='other', name=operator),
+        operator=operator,
         value=ComparisonValue(type='scalar', value=value)
     )
 
@@ -159,8 +167,8 @@ async def mutation(configuration: Configuration, state: State, mutation_request:
                 suffix_len = len('_one') if op.name.endswith('_one') else len('_many')
                 table = op.name[prefix_len:-suffix_len]
                 data = [op.arguments['object']] if op.name.endswith('_one') else op.arguments['objects']
-                returning = not (op.arguments.get("return") is None or int(op.arguments.get("return")) <= 0)
-                sql, args = build_insert_sql(table, data, returning=returning)
+                # returning = not (op.arguments.get("return") is None or int(op.arguments.get("return")) <= 0)
+                sql, args = build_insert_sql(table, data, returning=True)
                 if sql:
                     statements.append(Statement(sql=sql, args=args))
                 else:
@@ -172,8 +180,8 @@ async def mutation(configuration: Configuration, state: State, mutation_request:
                     assert isinstance(pk_columns, dict)
                     _set = op.arguments.get("_set", {})
                     _inc = op.arguments.get("_inc", {})
-                    returning = not (op.arguments.get("return") is None or int(op.arguments.get("return")) <= 0)
-                    sql, args = build_update_sql(table, pk_columns, _set, _inc, returning=returning)
+                    # returning = not (op.arguments.get("return") is None or int(op.arguments.get("return")) <= 0)
+                    sql, args = build_update_sql(table, pk_columns, _set, _inc, returning=True)
                     if sql:
                         statements.append(Statement(sql=sql, args=args))
                     else:
@@ -186,8 +194,8 @@ async def mutation(configuration: Configuration, state: State, mutation_request:
                     pk_columns = op.arguments["pk_columns"]
                     assert isinstance(pk_columns, dict)
                     # Returning is always none for SQLite, MySQL, but for things like Postgres it might not be.
-                    returning = not (op.arguments.get("return") is None or int(op.arguments.get("return")) <= 0)
-                    sql, args = build_delete_sql(table, pk_columns, returning=returning)
+                    # returning = not (op.arguments.get("return") is None or int(op.arguments.get("return")) <= 0)
+                    sql, args = build_delete_sql(table, pk_columns, returning=True)
                     if sql:
                         statements.append(Statement(sql=sql, args=args))
                     else:
@@ -210,7 +218,6 @@ async def mutation(configuration: Configuration, state: State, mutation_request:
                         )
                     ]
                 )
-                print(res)
                 return res
             else:
                 raise NotImplemented("This is not implemented")
@@ -228,9 +235,9 @@ async def mutation(configuration: Configuration, state: State, mutation_request:
     response = MutationResponse(
         operation_results=[
             MutationOperationResults(
-                affected_rows=len(returning),
-                returning=returning
-            )
+                type="procedure",
+                result=item["__value"]
+            ) for item in returning
         ]
     )
     return response

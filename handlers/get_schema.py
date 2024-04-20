@@ -1,7 +1,16 @@
-from hasura_ndc import *
-from models import Configuration
+from hasura_ndc.models import *
+
+try:
+    from models import Configuration
+except ImportError:
+    from ..models import Configuration
+
+try:
+    from constants import SCALAR_TYPES
+except ImportError:
+    from ..constants import SCALAR_TYPES
+
 from typing import List
-from constants import SCALAR_TYPES
 
 
 def is_numeric_type(type_name: str) -> bool:
@@ -88,6 +97,8 @@ def get_nested_where(cn, new_object_fields, nested=1):
 
 
 async def get_schema(configuration: Configuration) -> SchemaResponse:
+    print("GET SCHEMA")
+
     if not configuration.config:
         raise ValueError('Configuration is missing')
 

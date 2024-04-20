@@ -1,8 +1,17 @@
-from models import Configuration, State, QueryRequest, QueryResponse, Query, Expression, MutationResponse, MutationOperationResults
+try:
+    from models import Configuration, State, QueryRequest, QueryResponse, Query, Expression, MutationResponse, \
+        MutationOperationResults
+except ImportError:
+    from ..models import Configuration, State, QueryRequest, QueryResponse, Query, Expression, MutationResponse, \
+        MutationOperationResults
 from typing import List, Any, Dict, Optional
 import json
 from libsql_client import Statement
-from constants import MAX_32_INT
+
+try:
+    from constants import MAX_32_INT
+except ImportError:
+    from ..constants import MAX_32_INT
 
 
 def escape_single(s: Any) -> str:
@@ -50,29 +59,25 @@ def build_where(expression: Expression, args: List, variables: Dict[str, Any]) -
             raise ValueError("Column type in binary comparison not implemented")
         else:
             raise ValueError("Unknown Binary Comparison Value Type")
-        operator_type = expression.operator.type
-        if operator_type == 'equal':
+        operator_type = expression.operator
+        if operator_type == '_eq':
             sql = f"{expression.column.name} = ?"
-        elif operator_type == 'other':
-            operator_name = expression.operator.name
-            if operator_name == '_like':
-                sql = f"{expression.column.name} LIKE ?"
-            elif operator_name == '_glob':
-                sql = f"{expression.column.name} GLOB ?"
-            elif operator_name == '_neq':
-                sql = f"{expression.column.name} != ?"
-            elif operator_name == '_gt':
-                sql = f"{expression.column.name} > ?"
-            elif operator_name == '_lt':
-                sql = f"{expression.column.name} < ?"
-            elif operator_name == '_gte':
-                sql = f"{expression.column.name} >= ?"
-            elif operator_name == '_lte':
-                sql = f"{expression.column.name} <= ?"
-            else:
-                raise ValueError("Invalid Expression Operator Name")
+        elif operator_type == '_like':
+            sql = f"{expression.column.name} LIKE ?"
+        elif operator_type == '_glob':
+            sql = f"{expression.column.name} GLOB ?"
+        elif operator_type == '_neq':
+            sql = f"{expression.column.name} != ?"
+        elif operator_type == '_gt':
+            sql = f"{expression.column.name} > ?"
+        elif operator_type == '_lt':
+            sql = f"{expression.column.name} < ?"
+        elif operator_type == '_gte':
+            sql = f"{expression.column.name} >= ?"
+        elif operator_type == '_lte':
+            sql = f"{expression.column.name} <= ?"
         else:
-            raise ValueError("Binary Comparison Custom Operator not implemented")
+            raise ValueError("Invalid Expression Operator Name")
     elif expression.type == 'and':
         if not expression.expressions:
             sql = "1"
@@ -146,8 +151,9 @@ def build_query(config: Configuration,
                 f'{escape_double(collection_alias)}.{escape_double(to_col)}')
 
     # Build WHERE clause
-    if q.where:
-        where_conditions.append(f'({build_where(q.where, args, variables)})')
+
+    if q.predicate:
+        where_conditions.append(f'({build_where(q.predicate, args, variables)})')
 
     # Build ORDER BY clause
     if q.order_by:
@@ -221,7 +227,6 @@ async def perform_query(state: State, query_plans: List[Statement]) -> QueryResp
 
 
 async def query(configuration: Configuration, state: State, query_request: QueryRequest) -> QueryResponse:
-    print(query_request.model_dump_json(indent=4))
     if query_request.collection.startswith("list_"):
         # This won't work. :/ Blocked again.
         # Functional Queries just can't return Anything? I'm so confused.

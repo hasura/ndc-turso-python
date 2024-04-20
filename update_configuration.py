@@ -1,12 +1,13 @@
-from models import RawConfiguration, ObjectFieldDetails
 import libsql_client
-from hasura_ndc import *
+from models import Configuration, ObjectFieldDetails
 from constants import BASE_TYPES, BASE_FIELDS
 from utilities import introspect_table
+from typing import Dict
+import json
+import asyncio
 
 
-async def update_configuration(raw_configuration: RawConfiguration) -> RawConfiguration:
-    print(raw_configuration.credentials)
+async def update_configuration(raw_configuration: Configuration) -> Configuration:
     credentials = raw_configuration.credentials.model_dump()
     client = libsql_client.create_client(**credentials)
     tables_result = await client.execute(
@@ -44,3 +45,14 @@ async def update_configuration(raw_configuration: RawConfiguration) -> RawConfig
 
     await client.close()
     return raw_configuration
+
+
+if __name__ == "__main__":
+    with open("config.json", "r") as f:
+        configuration = json.load(f)
+
+    configuration = Configuration(**configuration)
+    configuration = asyncio.run(update_configuration(configuration))
+
+    with open("config.json", "w") as f:
+        json.dump(configuration.model_dump(), f)

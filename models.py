@@ -1,4 +1,4 @@
-from hasura_ndc import *
+from hasura_ndc.models import *
 from pydantic import BaseModel
 from libsql_client import Client
 from typing import Optional, List, Dict
@@ -32,9 +32,6 @@ class CredentialsSchema(BaseModel):
 class Configuration(BaseModel):
     credentials: CredentialsSchema
     config: Optional[ConfigurationSchema] = None
-
-
-RawConfiguration = Configuration
 
 
 class State(BaseModel):

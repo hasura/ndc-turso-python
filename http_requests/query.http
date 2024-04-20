@@ -1,6 +1,5 @@
 POST http://localhost:8084/query
 Content-Type: application/json
-Authorization: secret
 
 {
     "collection": "Artist",
